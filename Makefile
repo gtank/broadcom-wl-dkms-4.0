@@ -18,6 +18,8 @@
 #
 # $Id: Makefile_kbuild_portsrc 458427 2014-02-26 23:12:38Z $
 
+API_ETC_FILE := /etc/akmods/akmod-wl-6xx/api
+
 ifneq ($(KERNELRELEASE),)
 
   LINUXVER_GOODFOR_CFG80211:=$(strip $(shell \
@@ -36,6 +38,18 @@ ifneq ($(KERNELRELEASE),)
     fi \
   ))
 
+  API_FILE:=$(strip $(shell \
+    if [ -r "$(API_ETC_FILE)" ]; then \
+      echo TRUE; \
+    else \
+      echo FALSE; \
+    fi \
+  ))
+
+  ifeq ($(API_FILE), TRUE)
+    include $(API_ETC_FILE)
+  endif
+  
   ifneq ($(API),)
     ifeq ($(API), CFG80211)
       APICHOICE := FORCE_CFG80211
@@ -128,7 +142,7 @@ EXTRA_CFLAGS       += -I$(src)/src/shared/bcmwifi/include
 
 EXTRA_LDFLAGS      := $(src)/lib/wlc_hybrid.o_shipped
 
-KBASE              ?= /lib/modules/`uname -r`
+KBASE              ?= /lib/modules/$(KERNELVERSION)
 KBUILD_DIR         ?= $(KBASE)/build
 MDEST_DIR          ?= $(KBASE)/kernel/drivers/net/wireless
 
