@@ -156,8 +156,6 @@ static int wl_set_radio_block(void *data, bool blocked);
 static void wl_report_radio_state(wl_info_t *wl);
 #endif
 
-MODULE_LICENSE("MIXED/Proprietary");
-
 static struct pci_device_id wl_id_table[] =
 {
 	{ PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
@@ -880,11 +878,7 @@ wl_remove(struct pci_dev *pdev)
 static SIMPLE_DEV_PM_OPS(wl_pm_ops, wl_suspend, wl_resume);
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 8, 0)
 static struct pci_driver wl_pci_driver = {
-#else
-static struct pci_driver wl_pci_driver __refdata = {
-#endif
 	.name =		"wl",
 	.probe =	wl_pci_probe,
 	.remove =	__devexit_p(wl_remove),
@@ -1313,12 +1307,7 @@ wl_alloc_linux_if(wl_if_t *wlif)
 	dev->priv = priv_link;
 #else
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)
 	dev = alloc_netdev(sizeof(priv_link_t), intf_name, ether_setup);
-#else
-	dev = alloc_netdev(sizeof(priv_link_t), intf_name, NET_NAME_UNKNOWN, 
-		ether_setup);
-#endif 
 	if (!dev) {
 		WL_ERROR(("wl%d: %s: alloc_netdev failed\n",
 			(wl->pub)?wl->pub->unit:wlif->subunit, __FUNCTION__));
@@ -2056,13 +2045,8 @@ wl_osl_pcie_rc(struct wl_info *wl, uint op, int param)
 void
 wl_dump_ver(wl_info_t *wl, struct bcmstrbuf *b)
 {
-#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 9)
 	bcm_bprintf(b, "wl%d: %s %s version %s\n", wl->pub->unit,
 		__DATE__, __TIME__, EPI_VERSION_STR);
-#else
-	bcm_bprintf(b, "wl%d: version %s\n", wl->pub->unit,
-		EPI_VERSION_STR);
-#endif
 }
 
 #if defined(BCMDBG)
